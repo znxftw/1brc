@@ -57,15 +57,6 @@ fn main() {
         }
     }
 
-    match now.elapsed() {
-        Ok(elapsed) => {
-            println!("Finished in {} ms", elapsed.as_secs());
-        }
-        Err(e) => {
-            println!("Error: {e:?}");
-        }
-    }
-
     let mut result = HashMap::<String, (f64, f64, f64)>::new();
     for (key, value) in cities.into_iter() {
         let tuple = (value.min, value.sum / value.count as f64, value.max);
@@ -74,6 +65,15 @@ fn main() {
 
     let file = File::create_new("output.txt").unwrap();
     let _ = serde_json::to_writer(file, &result);
+
+    match now.elapsed() {
+        Ok(elapsed) => {
+            println!("Finished in {} ms", elapsed.as_secs());
+        }
+        Err(e) => {
+            println!("Error: {e:?}");
+        }
+    }
 }
 
 // Source : rust by example

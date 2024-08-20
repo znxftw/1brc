@@ -7,12 +7,13 @@ on:
     paths:
       - "src/**"
       - "Cargo.toml"
+      - ".github/workflows/run-and-benchmark.yml"
 
 jobs:
   build-and-run:
-    name: cargo test
+    name: cargo build
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
-      - run: cargo build
+      - run: cargo build --release

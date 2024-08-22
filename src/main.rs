@@ -68,7 +68,7 @@ fn main() {
 
     match now.elapsed() {
         Ok(elapsed) => {
-            println!("Finished in {} ms", elapsed.as_secs());
+            println!("Finished in {} ms", elapsed.as_millis());
         }
         Err(e) => {
             println!("Error: {e:?}");

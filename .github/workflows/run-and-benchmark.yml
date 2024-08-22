@@ -26,11 +26,11 @@ jobs:
           distribution: 'adopt'
           java-version: '21'
 
-      - name: "Generate 100 mil rows"
+      - name: "Generate 1b rows"
         working-directory: ./gen-1brc
         run: |
           ./mvnw -q clean verify
-          ./create_measurements.sh 100000000
+          ./create_measurements.sh 1000000000
 
       - name: "Checkout this repo"
         uses: actions/checkout@v4

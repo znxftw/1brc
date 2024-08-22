@@ -29,7 +29,7 @@ jobs:
       - name: "Generate 1 mil rows"
         working-directory: ./gen-1brc
         run: |
-          ./mvnw clean verify
+          ./mvnw -q clean verify
           ./create_measurements.sh 1000000
 
       - name: "Checkout this repo"
@@ -40,6 +40,12 @@ jobs:
       - name: "Install rust toolchain"
         uses: dtolnay/rust-toolchain@stable
 
-      - name: "Run cargo build"
+      - name: "Cargo run"
         working-directory: ./1brc
-        run: cargo build --release
+        run: cargo run --release
+
+      - name: "Upload output.txt"
+        uses: actions/upload-artifact@v4
+        with:
+          name: output.txt
+          path: ./1brc/output.txt

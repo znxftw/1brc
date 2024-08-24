@@ -9,6 +9,7 @@ use std::ops::Add;
 
 use serde::Serialize;
 
+
 #[derive(Serialize)]
 struct ReadingAggregate {
     max: f64,
@@ -42,10 +43,7 @@ fn main() {
         for line in lines.flatten() {
             let vals: Vec<&str> = line.split(';').collect();
             let city = vals[0].to_string();
-            let reading: f64 = match vals[1].parse() {
-                Ok(x) => x,
-                Err(_) => todo!(),
-            };
+            let reading: f64 = vals[1].parse().unwrap();
             match cities.get_mut(&city) {
                 Some(current_agg) => current_agg.update(reading),
                 None => {
@@ -66,14 +64,7 @@ fn main() {
     let file = File::create_new("output.txt").unwrap();
     let _ = serde_json::to_writer(file, &result);
 
-    match now.elapsed() {
-        Ok(elapsed) => {
-            println!("Finished in {} ms", elapsed.as_millis());
-        }
-        Err(e) => {
-            println!("Error: {e:?}");
-        }
-    }
+    println!("Finished in {} ms", now.elapsed().unwrap().as_millis());
 }
 
 // Source : rust by example

@@ -30,8 +30,8 @@ impl ReadingAggregate {
     fn update(&mut self, reading: f64) {
         self.max = self.max.max(reading);
         self.min = self.min.min(reading);
-        self.sum = self.sum.add(reading);
-        self.count = self.count + 1;
+        self.sum += reading;
+        self.count += 1;
     }
 }
 

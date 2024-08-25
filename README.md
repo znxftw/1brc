@@ -2,6 +2,8 @@
 
 This repo is an attempt to learn the nitty-gritties of Rust. 
 
+Roast My Code - I'm learning rust and want to know what I'm doing wrong.
+
 I'm attempting to solve the [1brc challenge](https://github.com/gunnarmorling/1brc) using Rust.
 
 Progress :

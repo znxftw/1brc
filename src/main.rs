@@ -43,7 +43,7 @@ fn main() {
         for line in lines.flatten() {
             let vals: Vec<&str> = line.split(';').collect();
             let city = vals[0].to_string();
-            let reading: f64 = vals[1].parse().unwrap();
+            let reading: f64 = fast_float::parse(vals[1]).unwrap();
             match cities.get_mut(&city) {
                 Some(current_agg) => current_agg.update(reading),
                 None => {

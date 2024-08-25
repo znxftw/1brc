@@ -6,3 +6,4 @@ edition = "2021"
 [dependencies]
 serde_json = "1.0.125"
 serde = { version = "1.0.208", features = ["derive"] }
+fast-float = "0.2"

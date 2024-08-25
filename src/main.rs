@@ -5,10 +5,9 @@ use std::{
     path::Path,
     time::SystemTime,
 };
-use std::ops::Add;
+use std::io::{BufReader, Lines};
 
 use serde::Serialize;
-
 
 #[derive(Serialize)]
 struct ReadingAggregate {
@@ -39,32 +38,41 @@ fn main() {
     let now = SystemTime::now();
     let mut cities = HashMap::<String, ReadingAggregate>::new();
 
-    if let Ok(lines) = read_lines("../gen-1brc/measurements.txt") {
-        for line in lines.flatten() {
-            let vals: Vec<&str> = line.split(';').collect();
-            let city = vals[0].to_string();
-            let reading: f64 = fast_float::parse(vals[1]).unwrap();
-            match cities.get_mut(&city) {
-                Some(current_agg) => current_agg.update(reading),
-                None => {
-                    let mut new_agg = ReadingAggregate::new();
-                    new_agg.update(reading);
-                    cities.insert(city, new_agg);
-                }
-            }
+    match read_lines("../gen-1brc/measurements.txt") {
+        Ok(lines) => {
+            process_lines(&mut cities, lines);
+        }
+        Err(error) => {
+            panic!("Error reading file. Error : {}", error);
         }
     }
 
-    let mut result = HashMap::<String, (f64, f64, f64)>::new();
+    let mut output_map = HashMap::<String, (f64, f64, f64)>::new();
     for (key, value) in cities.into_iter() {
         let tuple = (value.min, value.sum / value.count as f64, value.max);
-        result.insert(key, tuple);
+        output_map.insert(key, tuple);
     }
 
-    let file = File::create_new("output.txt").unwrap();
-    let _ = serde_json::to_writer(file, &result);
+    let file = File::create("output.txt").unwrap();
+    let _ = serde_json::to_writer(file, &output_map);
 
     println!("Finished in {} ms", now.elapsed().unwrap().as_millis());
+}
+
+fn process_lines(cities: &mut HashMap<String, ReadingAggregate>, lines: Lines<BufReader<File>>) {
+    for line in lines.flatten() {
+        let vals: Vec<&str> = line.split(';').collect();
+        let city = vals[0].to_string();
+        let reading: f64 = fast_float::parse(vals[1]).unwrap();
+        match cities.get_mut(&city) {
+            Some(current_agg) => current_agg.update(reading),
+            None => {
+                let mut new_agg = ReadingAggregate::new();
+                new_agg.update(reading);
+                cities.insert(city, new_agg);
+            }
+        }
+    }
 }
 
 // Source : rust by example

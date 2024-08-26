@@ -7,9 +7,6 @@ use std::{
 };
 use std::io::{BufReader, Lines};
 
-use serde::Serialize;
-
-#[derive(Serialize)]
 struct ReadingAggregate {
     max: f64,
     min: f64,

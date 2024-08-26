@@ -5,24 +5,29 @@ use std::{
     path::Path,
     time::SystemTime,
 };
-use std::io::{BufReader, Lines};
+use std::fmt::Display;
+use std::io::{BufReader, BufWriter, Lines, Write};
 
-struct ReadingAggregate {
+#[derive(Debug)]
+struct State {
     max: f64,
     min: f64,
     sum: f64,
     count: u32,
 }
 
-impl ReadingAggregate {
-    fn new() -> ReadingAggregate {
-        ReadingAggregate {
-            max: f64::MIN,
+
+impl Default for State {
+    fn default() -> Self {
+        Self {
             min: f64::MAX,
-            sum: 0.0,
+            max: f64::MIN,
             count: 0,
+            sum: 0.0,
         }
     }
+}
+impl State {
     fn update(&mut self, reading: f64) {
         self.max = self.max.max(reading);
         self.min = self.min.min(reading);
@@ -31,9 +36,16 @@ impl ReadingAggregate {
     }
 }
 
+impl Display for State {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let avg = self.sum / (self.count as f64);
+        write!(f, "{:.1}/{avg:.1}/{:.1}", self.min, self.max)
+    }
+}
+
 fn main() {
     let now = SystemTime::now();
-    let mut cities = HashMap::<String, ReadingAggregate>::new();
+    let mut cities = HashMap::<String, State>::new();
 
     match read_lines("../gen-1brc/measurements.txt") {
         Ok(lines) => {
@@ -44,19 +56,19 @@ fn main() {
         }
     }
 
-    let mut output_map = HashMap::<String, (f64, f64, f64)>::new();
-    for (key, value) in cities.into_iter() {
-        let tuple = (value.min, value.sum / value.count as f64, value.max);
-        output_map.insert(key, tuple);
+    let mut file = BufWriter::new(File::create("output.txt").unwrap());
+
+    for (i, (name, state)) in cities.into_iter().enumerate() {
+        if i == 0 {
+            file.write(format!("{name}={state}").as_bytes()).expect("Unable to write file");
+        } else {
+            file.write(format!(", {name}={state}").as_bytes()).expect("Unable to write file");
+        }
     }
-
-    let file = File::create("output.txt").unwrap();
-    let _ = serde_json::to_writer(file, &output_map);
-
     println!("Finished in {} ms", now.elapsed().unwrap().as_millis());
 }
 
-fn process_lines(cities: &mut HashMap<String, ReadingAggregate>, lines: Lines<BufReader<File>>) {
+fn process_lines(cities: &mut HashMap<String, State>, lines: Lines<BufReader<File>>) {
     for line in lines.flatten() {
         let vals: Vec<&str> = line.split(';').collect();
         let city = vals[0].to_string();
@@ -64,7 +76,7 @@ fn process_lines(cities: &mut HashMap<String, ReadingAggregate>, lines: Lines<Bu
         match cities.get_mut(&city) {
             Some(current_agg) => current_agg.update(reading),
             None => {
-                let mut new_agg = ReadingAggregate::new();
+                let mut new_agg = State::default();
                 new_agg.update(reading);
                 cities.insert(city, new_agg);
             }

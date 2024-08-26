@@ -14,7 +14,7 @@ struct ReadingAggregate {
     max: f64,
     min: f64,
     sum: f64,
-    count: i32,
+    count: u32,
 }
 
 impl ReadingAggregate {
